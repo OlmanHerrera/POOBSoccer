@@ -36,6 +36,8 @@ public class GamePanel extends JPanel implements  Runnable{
         //Create game components
         ball = new MatchBall(PWIDTH,PHEIGHT);
     }//end of GamePanel()
+    
+    
     public void addNotify( )
     /* Wait for the JPanel to be added to the JFrame/JApplet before starting. */
     {

@@ -30,21 +30,14 @@ public class MatchBall implements Entity
     
     
     @Override
-    public void checkEdges(){
-        if (location.x > PWIDTH){
-            location.x =0;
-        }else if (location.x < 0){
-            location.x = PWIDTH; 
+    public void checkEdges()
+    {
+        if (location.x < 0 || location.x + SIZE > PWIDTH) { 
+            velocity.x *= -1;
         }
-        
-        if (location.y > PHEIGHT){
-            location.y = 0;
-            
-        }else if (location.y < 0){
-            location.y = PHEIGHT;
+        if (location.y < 0 || location.y + SIZE > PHEIGHT) {
+            velocity.y *= -1;
         }
-        
-        
     }
    
 }
