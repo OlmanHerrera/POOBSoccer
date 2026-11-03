@@ -1,34 +1,53 @@
-package stc.domain;
+package src.domain;
 public class PVector{
-    double x;
-    double y;
+    float x;
+    float y;
 
-    public PVector(double x, double y){
-        this.x = x;
-        this.y = y;
+    public PVector(float x_, float y_)
+    {
+        this.x = x_;
+        this.y = y_;
     }
-    public void add(Pvector b){
-        this.x += b.x;
-        this.y += b.y;
+    
+    public void add(PVector v)
+    {
+        x = x + v.x;
+        y = y + v.y;
     }
-
-    public void mul(int c){
-        this.x = x*c; 
-        this.y = y*c;
-    }
-
-    public void mul(float f){
-        this.x = x*f;
-        this.y = y*f;
-    }
-
-    public float mag(){
-        return Math.sqrt(x*x+ y*y);
+    
+    public void sub(PVector v)
+    {
+        
+        x= x - v.x;
+        y= y - v.y;
     }
 
-    public void normalize(){
-        float mag = mag();
-        mul(mag);
+
+    public void mult(float n)
+    {
+        x = x*n;
+        y = y*n;
+    }
+    
+    public void div(float n)
+    {
+        x = x/n;
+        y = y/n;
+    }
+
+    public float mag()
+    {
+        return (float) Math.sqrt(x*x+y*y);
+    }
+
+
+    public void normalize()
+    //
+    {
+        float m = mag();
+        if (m!= 0){
+            div(m);   
+        }
 
     }
 }

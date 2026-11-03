@@ -1,0 +1,8 @@
+#BlueJ class context
+#Tue Nov 03 12:59:48 COT 2026
+comment0.target=Entity
+comment1.target=void update()
+comment2.params=g
+comment2.target=void display(java.awt.Graphics)
+comment3.target=void checkEdges()
+numComments=4
