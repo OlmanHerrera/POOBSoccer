@@ -8,7 +8,7 @@ import javax.swing.event.*;
 public class POOBSoccerGUI extends JFrame{
     public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private final Dimension frameSize = new Dimension(screenSize.width/2, screenSize.height/2);
-    private GamePanel gp;
+    private POOBSoccerPanel gp;
 
     public static void main(String[] args){
         POOBSoccerGUI sketch = new POOBSoccerGUI();
@@ -21,7 +21,7 @@ public class POOBSoccerGUI extends JFrame{
 
     public void prepareView(){
         setTitle("POOBSoccer");
-        gp = new GamePanel();
+        gp = new POOBSoccerPanel();
         add(gp);
         pack();
         setLocation((screenSize.width-frameSize.width)/2,(screenSize.height-frameSize.height)/2);

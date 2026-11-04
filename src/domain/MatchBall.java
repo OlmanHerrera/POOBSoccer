@@ -11,7 +11,7 @@ public class MatchBall implements Entity
     
     public MatchBall(int PWIDTH, int PHEIGHT){
         location = new PVector(0,0);
-        velocity = new PVector(1,10);
+        velocity = new PVector(2,2);
         this.PWIDTH = PWIDTH;
         this.PHEIGHT = PHEIGHT;
     }

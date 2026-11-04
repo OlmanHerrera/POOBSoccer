@@ -1,0 +1,17 @@
+#BlueJ class context
+#Tue Nov 03 21:27:07 COT 2026
+comment0.target=POOBSoccerPanel
+comment1.target=POOBSoccerPanel()
+comment10.target=void readyForTermination()
+comment11.params=e
+comment11.target=void keyPressed(java.awt.event.KeyEvent)
+comment2.params=extraUpdates
+comment2.target=void reportStats(int)
+comment3.target=void addNotify()
+comment4.target=void startGame()
+comment5.target=void stopGame()
+comment6.target=void run()
+comment7.target=void gameUpdate()
+comment8.target=void gameRender()
+comment9.target=void paintScreen()
+numComments=12
