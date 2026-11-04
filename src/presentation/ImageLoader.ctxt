@@ -1,6 +1,0 @@
-#BlueJ class context
-#Tue Nov 03 21:46:42 COT 2026
-comment0.target=ImageLoader
-comment1.params=fnm
-comment1.target=void LoadImagesFile(java.lang.String)
-numComments=2
