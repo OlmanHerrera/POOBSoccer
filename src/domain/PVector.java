@@ -50,4 +50,18 @@ public class PVector{
         }
 
     }
+    
+    public void limit(float max){
+        if (mag() > max){
+            normalize();
+            mult(max);
+        }
+        
+    }
+    
+    public PVector get(){
+        return new PVector(x,y);
+    }
+    
+
 }

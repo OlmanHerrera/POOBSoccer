@@ -1,9 +1,9 @@
 #BlueJ package file
-dependency1.from=MatchBall
-dependency1.to=PVector
+dependency1.from=POOBSoccerPanel
+dependency1.to=MatchBall
 dependency1.type=UsesDependency
-dependency2.from=POOBSoccerPanel
-dependency2.to=MatchBall
+dependency2.from=MatchBall
+dependency2.to=PVector
 dependency2.type=UsesDependency
 objectbench.height=94
 objectbench.width=761
@@ -50,8 +50,8 @@ target4.name=POOBSoccerPanel
 target4.showInterface=false
 target4.type=ClassTarget
 target4.width=140
-target4.x=150
-target4.y=120
+target4.x=100
+target4.y=130
 target5.height=70
 target5.name=Bot
 target5.showInterface=false

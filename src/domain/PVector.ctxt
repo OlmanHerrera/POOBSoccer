@@ -1,5 +1,5 @@
 #BlueJ class context
-#Tue Nov 03 12:56:18 COT 2026
+#Wed Nov 04 15:08:35 COT 2026
 comment0.target=PVector
 comment1.params=x_ y_
 comment1.target=PVector(float, float)
@@ -13,4 +13,7 @@ comment5.params=n
 comment5.target=void div(float)
 comment6.target=float mag()
 comment7.target=void normalize()
-numComments=8
+comment8.params=max
+comment8.target=void limit(float)
+comment9.target=PVector get()
+numComments=10

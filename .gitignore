@@ -1,5 +1,2 @@
-src\domain\*.ctxt
-src\domain\*.class
-src\presentation\*.ctxt
-src\presentation\*.class
-
+*.class
+*.ctxt
