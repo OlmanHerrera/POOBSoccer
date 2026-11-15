@@ -5,12 +5,12 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.io.*;
+import java.awt.Container;
 
 public class POOBSoccer extends JFrame implements WindowListener{
     private static final int DEFAULT_FPS = 100;
     private POOBSoccerPanel psp;
     private JTextField jtfScoreBox;
-    
     
     public POOBSoccer(long period){
         jtfScoreBox = new JTextField();
@@ -43,6 +43,11 @@ public class POOBSoccer extends JFrame implements WindowListener{
         
     }
     
+    
+    
+    public void addComponentToPane(Container content ){
+   
+    }
     public void windowActivated(WindowEvent e){
         psp.resumeGame();
         
@@ -70,7 +75,7 @@ public class POOBSoccer extends JFrame implements WindowListener{
     public void windowOpened(WindowEvent e ){
  
     }
-   
+
     
     public void setScoreBoard(int s1, int s2){
         jtfScoreBox.setText("Player1 : "+ s1+ " : " + " Player 2 : " +s2  );
