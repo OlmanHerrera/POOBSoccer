@@ -81,6 +81,23 @@ public class Sprite
 
     }
     
+    public void playImageOnce(int animPeriod, double seqDuration, ImagesPlayerWatcher w)
+    {
+        if (imsLoader.numImages(imageName) > 1){
+            player = new ImagesPlayer(imageName, animPeriod, seqDuration, false, imsLoader);
+            player.setWatcher(w);
+            isLooping = true;
+        }
+    }
+
+    public int getImagePosition()
+    {
+        if (isLooping){
+            return player.getCurrentPosition();
+        }
+        return -1;
+    }
+
     public void stopLooping()
     {
         if (isLooping){

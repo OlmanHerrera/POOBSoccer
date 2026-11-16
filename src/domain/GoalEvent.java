@@ -3,11 +3,11 @@ package src.domain;
 
 public class GoalEvent
 {
-  private Match source;     // the match where the goal happened
-  private int scorer;       // Match.LEFT or Match.RIGHT
+  private Match source;
+  private Side scorer;
   private int leftScore, rightScore;
 
-  public GoalEvent(Match source, int scorer, int leftScore, int rightScore)
+  public GoalEvent(Match source, Side scorer, int leftScore, int rightScore)
   {
       this.source = source;
       this.scorer = scorer;
@@ -18,7 +18,7 @@ public class GoalEvent
   public Match getSource()
   {  return source;  }
 
-  public int getScorer()
+  public Side getScorer()
   {  return scorer;  }
 
   public int getLeftScore()
@@ -26,4 +26,4 @@ public class GoalEvent
 
   public int getRightScore()
   {  return rightScore;  }
-} // end of GoalEvent class
+}

@@ -18,14 +18,12 @@ public class ImagesLoader
   private GraphicsConfiguration gc;
 
   public ImagesLoader(String fnm)
-  // load the images listed in the configuration file fnm
   {
       initLoader();
       loadImagesFile(fnm);
   }
 
   public ImagesLoader()
-  // an empty loader: images are added later with the load methods
   {  initLoader();  }
 
   private void initLoader()
@@ -35,8 +33,8 @@ public class ImagesLoader
 
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       GraphicsDevice gd = ge.getDefaultScreenDevice();
-      gc = gd.getDefaultConfiguration();   // the field, not a local variable
-  } // end of initLoader()
+      gc = gd.getDefaultConfiguration();
+  }
 
 
   private void loadImagesFile(String fnm)
@@ -67,7 +65,7 @@ public class ImagesLoader
             else if (ch == 'n'){ // a numbered sequence of images
                 getNumberedImages(line);
             }
-            else if (ch == 's'){ // an images strip
+            else if (ch == 's'){
                 getStripImage(line);
             }
             else if (ch == 'g'){ // a group of images
@@ -81,7 +79,7 @@ public class ImagesLoader
      System.out.println("Error reading file: " + imsFNm);
      System.exit(1);
     }
-  } // end of loadImagesFile()
+  }
 
   public void getFileNameImage(String line)
   // format is o <fnm>
@@ -98,7 +96,6 @@ public class ImagesLoader
   }
 
   public boolean loadSingleImage(String fnm)
-  // stored under the file name without extension
   {
       String name = getPrefix(fnm);
       if (imagesMap.containsKey(name)){
@@ -117,7 +114,7 @@ public class ImagesLoader
       else{
           return false;
       }
-  } // end of loadSingleImage()
+  }
 
 
   private void getNumberedImages(String line)
@@ -135,7 +132,7 @@ public class ImagesLoader
       if (number > 0){
           loadNumImages(fnm, number);
       }
-  } // end of getNumberedImages()
+  }
 
   public int loadNumImages(String fnm, int number)
   {
@@ -169,7 +166,7 @@ public class ImagesLoader
           System.out.println(" Stored " + loadCount + " images under " + prefix);
       }
       return loadCount;
-  } // end of loadNumImages()
+  }
 
 
   private void getStripImage(String line)
@@ -187,11 +184,9 @@ public class ImagesLoader
       if (number > 0){
           loadStripImages(fnm, number);
       }
-  } // end of getStripImage()
+  }
 
   public int loadStripImages(String fnm, int number)
-  /* the strip is cut into number images, stored under the
-     file name without extension. Returns how many were loaded. */
   {
       String name = getPrefix(fnm);
       if (imagesMap.containsKey(name)){
@@ -208,7 +203,7 @@ public class ImagesLoader
       imagesMap.put(name, imsList);
       System.out.println(" Stored " + strip.length + " images under " + name);
       return strip.length;
-  } // end of loadStripImages()
+  }
 
   public BufferedImage[] loadStripImageArray(String fnm, int number)
   {
@@ -263,7 +258,7 @@ public class ImagesLoader
           fnms.add(tokens.nextToken());
       }
       loadGroupImages(name, fnms);
-  } // end of getGroupImages()
+  }
 
   public int loadGroupImages(String name, ArrayList<String> fnms)
 
@@ -292,13 +287,12 @@ public class ImagesLoader
           System.out.println(" Stored " + imsList.size() + " images under " + name);
       }
       return imsList.size();
-  } // end of loadGroupImages()
+  }
 
 
 
 
   public BufferedImage getImage(String name)
-  // the first image stored under name
   {
       ArrayList<BufferedImage> imsList = imagesMap.get(name);
       if (imsList == null){
@@ -316,7 +310,7 @@ public class ImagesLoader
           return null;
       }
       int size = imsList.size();
-      int pos = ((posn % size) + size) % size;   // also works for negative posn
+      int pos = ((posn % size) + size) % size;
       return imsList.get(pos);
   }
 
@@ -337,7 +331,6 @@ public class ImagesLoader
   }
 
   public ArrayList<BufferedImage> getImages(String name)
-  // all the images stored under name
   {
       ArrayList<BufferedImage> imsList = imagesMap.get(name);
       if (imsList == null){
@@ -350,7 +343,6 @@ public class ImagesLoader
   {  return imagesMap.containsKey(name);  }
 
   public int numImages(String name)
-  // 0 if nothing is stored under name
   {
       ArrayList<BufferedImage> imsList = imagesMap.get(name);
       return (imsList == null) ? 0 : imsList.size();
@@ -380,10 +372,9 @@ public class ImagesLoader
           System.out.println("load Image error for " + IMAGE_DIR + fnm + ":\n" + e );
           return null;
       }
-  } // end of loadImage() using ImageIO
+  }
 
   private String getPrefix(String fnm)
-  // the file name without its extension: "ball.png" -> "ball"
   {
       int posn = fnm.lastIndexOf('.');
       if (posn == -1){
@@ -394,7 +385,6 @@ public class ImagesLoader
   }
 
   private int parseNumber(String token, String line)
-  // the number argument of an n or s line; -1 if it is not valid
   {
       try{
           int number = Integer.parseInt(token);
@@ -408,4 +398,4 @@ public class ImagesLoader
           return -1;
       }
   }
-} // end of ImagesLoader class
+}

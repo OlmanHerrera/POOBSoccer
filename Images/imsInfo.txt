@@ -2,12 +2,11 @@
 // fondo (500 x 400) y elementos fijos
 o background.jpg
 o ball.png
-o scoreboard.png
 o goal_left.png
 o goal_right.png
 n player1_run*.png 4
 n player2_run*.png 4
 
-// estadio animado: tiras de 3 frames de 500 de ancho
-s crowd.png 3
-s flags.png 3
+// patada de cada jugador: tiras de 5 frames
+s player1_kick.png 5
+s player2_kick.png 5

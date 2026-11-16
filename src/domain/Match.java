@@ -5,13 +5,10 @@ import java.util.ArrayList;
 
 public class Match
 {
-  public static final int LEFT = 1;   
-  public static final int RIGHT = 2;    
 
-  // goal mouths on the screen (they must match where the panel draws goal_*.png)
-  private static final int LEFT_GOAL_LINE = 46;    // x of the left goal line
-  private static final int RIGHT_GOAL_LINE = 454;  // x of the right goal line
-  private static final int CROSSBAR_Y = 281;       // y of the crossbar of both goals
+  private static final int LEFT_GOAL_LINE = 65;
+  private static final int RIGHT_GOAL_LINE = 435;
+  private static final int CROSSBAR_Y = 221;
 
   private static final int GOALS_TO_WIN = 5;
 
@@ -23,12 +20,14 @@ public class Match
   private boolean isOver = false;
 
   private ArrayList<MatchObserver> observers = new ArrayList<>();
+  private Rectangle lastBall;
 
   public Match(BallSprite ball, PlayerSprite leftPlayer, PlayerSprite rightPlayer)
   {
       this.ball = ball;
       this.leftPlayer = leftPlayer;
       this.rightPlayer = rightPlayer;
+      lastBall = ball.getMyRectangle();
   }
 
   public void addObserver(MatchObserver o)
@@ -42,55 +41,70 @@ public class Match
   {  observers.remove(o);  }
 
   private void notifyGoal(GoalEvent e)
-  // fire the event: call the method of every observer
   {
-      for (MatchObserver o : observers){
-          o.goalScored(e);
+      for (int i = 0; i < observers.size(); i++){
+          observers.get(i).goalScored(e);
       }
   }
 
   private void notifyEnd(GoalEvent e)
   {
-      for (MatchObserver o : observers){
-          o.matchEnded(e);
+      for (int i = 0; i < observers.size(); i++){
+          observers.get(i).matchEnded(e);
       }
   }
 
 
   public void update()
-  // called once per game update
   {
       if (isOver){
           return;
       }
+      leftPlayer.think(this);
+      rightPlayer.think(this);
       ball.updateSprite();
       leftPlayer.updateSprite();
       rightPlayer.updateSprite();
+      checkGoalRoof();
       checkGoal();
+      lastBall = ball.getMyRectangle();
+  }
+
+  private void checkGoalRoof()
+  {
+      Rectangle r = ball.getMyRectangle();
+      int center = r.x + r.width/2;
+      if (center > LEFT_GOAL_LINE && center < RIGHT_GOAL_LINE){
+          return;
+      }
+      if (lastBall.y + lastBall.height <= CROSSBAR_Y && r.y + r.height > CROSSBAR_Y){
+          ball.bounceOn(CROSSBAR_Y);
+      }
   }
 
   private void checkGoal()
   {
       Rectangle r = ball.getMyRectangle();
-      boolean belowCrossbar = r.y > CROSSBAR_Y;
-
-      if (belowCrossbar && (r.x + r.width < LEFT_GOAL_LINE)){
-          goal(RIGHT);
+      if (r.y <= CROSSBAR_Y){
+          return;
       }
-      else if (belowCrossbar && (r.x > RIGHT_GOAL_LINE)){
-          goal(LEFT);
+      if (lastBall.x + lastBall.width >= LEFT_GOAL_LINE && r.x + r.width < LEFT_GOAL_LINE){
+          goal(Side.RIGHT);
+      }
+      else if (lastBall.x <= RIGHT_GOAL_LINE && r.x > RIGHT_GOAL_LINE){
+          goal(Side.LEFT);
       }
   }
 
-  private void goal(int scorer)
+  private void goal(Side scorer)
   {
-      if (scorer == LEFT){
+      if (scorer == Side.LEFT){
           leftScore++;
       }
       else{
           rightScore++;
       }
-      ball.initPosition();     // back to play, so the same goal is not counted again
+      ball.initPosition();
 
       GoalEvent e = new GoalEvent(this, scorer, leftScore, rightScore);
       notifyGoal(e);
@@ -99,7 +113,7 @@ public class Match
           isOver = true;
           notifyEnd(e);
       }
-  } // end of goal()
+  }
 
 
   public int getLeftScore()
@@ -110,4 +124,34 @@ public class Match
 
   public boolean isOver()
   {  return isOver;  }
-} // end of Match class
+
+
+  public Rectangle getBallBounds()
+  {  return ball.getMyRectangle();  }
+
+  public PlayerSprite getOpponent(PlayerSprite p)
+  { 
+    if (p == leftPlayer){
+        return rightPlayer;
+    }else{
+        return leftPlayer;
+    }
+
+  }
+
+  public PVector getBallVelocity()
+  {
+    return ball.velocity.get();
+  }
+
+  public int getGoalLineX(Side s)
+  {
+    if (s == Side.LEFT){
+        return LEFT_GOAL_LINE;
+    }else{
+        return RIGHT_GOAL_LINE;
+    }
+  }
+
+
+}

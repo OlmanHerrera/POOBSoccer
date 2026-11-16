@@ -3,26 +3,23 @@ import java.awt.image.BufferedImage;
 
 public class ImagesPlayer
 {
-  private String imName;          // name of the images in ImagesLoader
-  private boolean isRepeating;    // start again after the last image?
-  private boolean ticking;        // is the animation running?
+  private String imName;
+  private boolean isRepeating;
+  private boolean ticking;
   private ImagesLoader imsLoader;
 
-  private int animPeriod;         // game loop period, in ms
-  private long animTotalTime;     // animation time elapsed, in ms
+  private int animPeriod;
+  private long animTotalTime;
 
-  private int showPeriod;         // how long each image is shown, in ms
-  private double seqDuration;     // total time of the sequence, in secs
+  private int showPeriod;
+  private double seqDuration;
 
   private int numImages;
-  private int imPosition;         // position of the current image
+  private int imPosition;
 
   private ImagesPlayerWatcher watcher = null;
 
   public ImagesPlayer(String nm, int ap, double d, boolean isr, ImagesLoader il)
-  /* nm: name of the images, ap: game loop period in ms,
-     d: duration of the whole sequence in seconds,
-     isr: repeat the sequence, il: the loader with the images */
   {
       imName = nm;
       animPeriod = ap;
@@ -49,24 +46,23 @@ public class ImagesPlayer
           ticking = true;
           showPeriod = (int) (1000 * seqDuration / numImages);
       }
-  } // end of ImagesPlayer()
+  }
 
 
   public void updateTick()
-  // called by the game loop once per update
   {
       if (!ticking){
           return;
       }
 
-      long seqTime = (long) (1000 * seqDuration);   // in ms
+      long seqTime = (long) (1000 * seqDuration);
       animTotalTime += animPeriod;
 
-      if (animTotalTime >= seqTime){      // reached the end of the sequence
+      if (animTotalTime >= seqTime){
           if (isRepeating){
-              animTotalTime %= seqTime;   // wrap around to the start
+              animTotalTime %= seqTime;
           }
-          else{                           // stay on the last image
+          else{
               animTotalTime = seqTime - 1;
               imPosition = numImages - 1;
               ticking = false;
@@ -78,10 +74,10 @@ public class ImagesPlayer
       }
 
       imPosition = (int) (animTotalTime / showPeriod);
-      if (imPosition >= numImages){       // rounding in showPeriod
+      if (imPosition >= numImages){
           imPosition = numImages - 1;
       }
-  } // end of updateTick()
+  }
 
 
   public BufferedImage getCurrentImage()
@@ -99,18 +95,15 @@ public class ImagesPlayer
   {  watcher = w;  }
 
   public void stop()
-  // stop at the current image
   {  ticking = false;  }
 
   public boolean isStopped()
   {  return !ticking;  }
 
   public boolean atSequenceEnd()
-  // only true for a non-repeating sequence that has finished
   {  return (imPosition == numImages - 1) && !isRepeating && !ticking;  }
 
   public void restartAt(int imPosn)
-  // start showing the images again from position imPosn
   {
       if (numImages != 0){
           if ((imPosn < 0) || (imPosn > numImages - 1)){
@@ -118,16 +111,15 @@ public class ImagesPlayer
               imPosn = 0;
           }
           imPosition = imPosn;
-          animTotalTime = (long) imPosition * showPeriod;   // so updateTick() continues from there
+          animTotalTime = (long) imPosition * showPeriod;
           ticking = true;
       }
   }
 
   public void resume()
-  // continue from the current image
   {
       if (numImages != 0){
           ticking = true;
       }
   }
-} // end of ImagesPlayer class
+}
