@@ -1,0 +1,12 @@
+
+// fondo (500 x 400) y elementos fijos
+o background.jpg
+o ball.png
+o goal_left.png
+o goal_right.png
+n player1_run*.png 4
+n player2_run*.png 4
+
+// patada de cada jugador: tiras de 5 frames
+s player1_kick.png 5
+s player2_kick.png 5
