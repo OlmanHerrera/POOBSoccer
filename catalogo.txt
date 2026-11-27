@@ -1,0 +1,26 @@
+
+
+pais ; Corea del Sur ; BlueAuraShot ; korea
+pais ; Camerún ; LightningShot ; camerun
+pais ; Nigeria ; TornadoShot ; nigeria
+pais ; Estados Unidos ; DeceptiveShot ; usa
+
+perfil ; ClumsyProfile
+perfil ; OffensiveProfile
+perfil ; DefensiveProfile
+perfil ; ExpertProfile
+
+cancha ; 500 ; 400
+cancha ; 625 ; 500
+cancha ; 750 ; 600
+
+elemento ; Crossbar
+elemento ; Goal
+
+reglas ; TimedRules
+reglas ; GoalsRules
+
+estadistica ; SpeedStat
+estadistica ; KickStat
+estadistica ; JumpStat
+estadistica ; SurvivalStat

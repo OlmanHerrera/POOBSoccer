@@ -14,6 +14,7 @@ public class PlayerSprite extends Sprite implements ImagesPlayerWatcher{
     private static final int KICK_LAST_ACTIVE_FRAME = 3;
     private static final int BODY_THIRDS = 3;
     private static final int BOOT_EXTRA_WIDTH = 4;
+    private static final int KICK_REACH = 6;
 
     private int period;
     private String runImage;
@@ -44,7 +45,8 @@ public class PlayerSprite extends Sprite implements ImagesPlayerWatcher{
         this.period = period;
         setVelocity(0, 0);
         this.side = side;
-        startX = field.getStartX(side);
+        startX = field.getStartX(side) - getWidth() / 2;
+        location.x = startX;
         groundY = field.getFloorY() - getHeight();
         location.y = groundY;
     }
@@ -152,6 +154,25 @@ public class PlayerSprite extends Sprite implements ImagesPlayerWatcher{
             return new Rectangle(r.x + r.width - w, r.y + r.height - h, w, h);
         }
         return new Rectangle(r.x, r.y + r.height - h, w, h);
+    }
+
+    /** @return zona que alcanza la patada: el guayo y un poco más adelante */
+    public Rectangle getKickBox(){
+        Rectangle boot = getBootBox();
+        if (side == Side.LEFT){
+            return new Rectangle(boot.x, boot.y, boot.width + KICK_REACH, boot.height);
+        }
+        return new Rectangle(boot.x - KICK_REACH, boot.y, boot.width + KICK_REACH, boot.height);
+    }
+
+    /** @return true mientras dura la animación de la patada */
+    public boolean isKicking(){
+        return kicking;
+    }
+
+    /** @return velocidad horizontal, positiva hacia la derecha */
+    public float getSpeedX(){
+        return velocity.x;
     }
 
     /** Salta si está en el suelo. */

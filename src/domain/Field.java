@@ -8,12 +8,12 @@ public class Field{
     private static final int REFERENCE_HEIGHT = 400;
     private static final int REFERENCE_FLOOR_Y = 341;
     private static final int REFERENCE_CROSSBAR_Y = 221;
-    private static final int REFERENCE_LEFT_GOAL_X = 65;
-    private static final int REFERENCE_RIGHT_GOAL_X = 435;
-    private static final int REFERENCE_LEFT_START_X = 125;
-    private static final int REFERENCE_RIGHT_START_X = 375;
+    private static final int REFERENCE_LEFT_GOAL_X = 46;
+    private static final int REFERENCE_RIGHT_GOAL_X = 454;
+    private static final int REFERENCE_LEFT_START_X = 150;
+    private static final int REFERENCE_RIGHT_START_X = 350;
     private static final int REFERENCE_GOAL_TOP_Y = 213;
-    private static final int REFERENCE_GOAL_WIDTH = 72;
+    private static final int REFERENCE_GOAL_WIDTH = 51;
     private static final int REFERENCE_GOAL_HEIGHT = 132;
 
     private String id;
@@ -70,7 +70,7 @@ public class Field{
 
     /**
      * @param s lado del jugador
-     * @return x donde arranca el jugador de ese lado
+     * @return x del centro del jugador de ese lado al arrancar
      */
     public int getStartX(Side s){
         if (s == Side.LEFT){

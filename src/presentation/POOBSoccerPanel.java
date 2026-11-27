@@ -4,6 +4,7 @@ import src.domain.Side;
 import src.domain.Action;
 import src.domain.MatchObserver;
 import src.domain.GoalEvent;
+import src.domain.POOBSoccerException;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -43,6 +44,7 @@ public class POOBSoccerPanel extends JPanel implements Runnable, MatchObserver{
     private POOBSoccer frame;
     private POOBSoccerGame game;
     private Hud hud;
+    private Controls controls;
     private Thread animator;
     private volatile boolean running = false;
     private volatile boolean paused = false;
@@ -71,8 +73,16 @@ public class POOBSoccerPanel extends JPanel implements Runnable, MatchObserver{
      * @param frame ventana principal
      * @param game juego
      * @param period período del ciclo en nanosegundos
+     * @throws POOBSoccerException si controles.txt no existe o tiene una línea mal escrita
      */
-    public POOBSoccerPanel(POOBSoccer frame, POOBSoccerGame game, long period){
+    public POOBSoccerPanel(POOBSoccer frame, POOBSoccerGame game, long period) throws POOBSoccerException{
+        try{
+            controls = new Controls();
+        }
+        catch (POOBSoccerException e){
+            game.recordError(e);
+            throw e;
+        }
         setBackground(Color.white);
         setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         this.frame = frame;
@@ -147,7 +157,6 @@ public class POOBSoccerPanel extends JPanel implements Runnable, MatchObserver{
                 }
             }
             beforeTime = System.nanoTime();
-            // si dibujar se atrasó, actualiza sin dibujar para recuperar el tiempo
             int skips = 0;
             while ((excess > period) && (skips < MAX_FRAME_SKIPS)){
                 excess -= period;
@@ -295,14 +304,14 @@ public class POOBSoccerPanel extends JPanel implements Runnable, MatchObserver{
 
     private void paintScreen(){
         if (!isShowing()){
-            return; // otra pantalla está encima
+            return;
         }
         Graphics g;
         try{
             g = this.getGraphics();
             if ((g != null) && (dbImage != null)){
                 g.drawImage(dbImage, 0, 0, null);
-                Toolkit.getDefaultToolkit().sync(); // algunos sistemas no muestran el cuadro sin esto
+                Toolkit.getDefaultToolkit().sync();
                 g.dispose();
             }
         }
@@ -336,22 +345,22 @@ public class POOBSoccerPanel extends JPanel implements Runnable, MatchObserver{
 
     private void processKey(KeyEvent e){
         int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_ESCAPE){
+        if (keyCode == Controls.EXIT_KEY){
             escapePressed();
             return;
         }
-        if (keyCode == KeyEvent.VK_P){
+        if (keyCode == Controls.PAUSE_KEY){
             togglePause();
             return;
         }
         if (paused || game.isPaused() || game.isMatchOver()){
             return;
         }
-        Action left = leftAction(keyCode);
+        Action left = controls.getAction(Side.LEFT, keyCode);
         if (left != null){
             game.perform(Side.LEFT, left);
         }
-        Action right = rightAction(keyCode);
+        Action right = controls.getAction(Side.RIGHT, keyCode);
         if (right != null){
             game.perform(Side.RIGHT, right);
         }
@@ -398,59 +407,5 @@ public class POOBSoccerPanel extends JPanel implements Runnable, MatchObserver{
         game.endMatch();
         frame.showMenu();
         return true;
-    }
-
-    /**
-     * Teclas del jugador izquierdo: A, D, S, W, Z para patear y X para el poder.
-     * @param keyCode tecla presionada
-     * @return acción de esa tecla, o null si no es suya
-     */
-    private Action leftAction(int keyCode){
-        if (keyCode == KeyEvent.VK_A){
-            return Action.MOVE_LEFT;
-        }
-        if (keyCode == KeyEvent.VK_D){
-            return Action.MOVE_RIGHT;
-        }
-        if (keyCode == KeyEvent.VK_S){
-            return Action.STAY_STILL;
-        }
-        if (keyCode == KeyEvent.VK_W){
-            return Action.JUMP;
-        }
-        if (keyCode == KeyEvent.VK_Z){
-            return Action.KICK;
-        }
-        if (keyCode == KeyEvent.VK_X){
-            return Action.POWER;
-        }
-        return null;
-    }
-
-    /**
-     * Teclas del jugador derecho: flechas, ESPACIO para patear y ENTER para el poder.
-     * @param keyCode tecla presionada
-     * @return acción de esa tecla, o null si no es suya
-     */
-    private Action rightAction(int keyCode){
-        if (keyCode == KeyEvent.VK_LEFT){
-            return Action.MOVE_LEFT;
-        }
-        if (keyCode == KeyEvent.VK_RIGHT){
-            return Action.MOVE_RIGHT;
-        }
-        if (keyCode == KeyEvent.VK_DOWN){
-            return Action.STAY_STILL;
-        }
-        if (keyCode == KeyEvent.VK_UP){
-            return Action.JUMP;
-        }
-        if (keyCode == KeyEvent.VK_SPACE){
-            return Action.KICK;
-        }
-        if (keyCode == KeyEvent.VK_ENTER){
-            return Action.POWER;
-        }
-        return null;
     }
 }

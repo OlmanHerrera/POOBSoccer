@@ -19,6 +19,7 @@ public class POOBSoccer extends JFrame implements WindowListener{
     private static final String MATCH_FILES = "Partidos";
     private static final String PROGRESS_FILES = "Progreso";
     private static final String FILE_ERROR_TITLE = "Archivo";
+    private static final String START_ERROR_TITLE = "No se pudo iniciar el juego";
     private static final String PROGRESS_ERROR = "No se pudo cargar el progreso: ";
     private static final int MILLIS_PER_SECOND = 1000;
     private static final long NANOS_PER_MILLI = 1000000L;
@@ -40,8 +41,9 @@ public class POOBSoccer extends JFrame implements WindowListener{
     /**
      * Crea la ventana con sus pantallas y recupera el progreso de la ejecución anterior.
      * @param period período del bucle en nanosegundos
+     * @throws POOBSoccerException si no se pudo leer el catálogo o los controles del juego
      */
-    public POOBSoccer(long period){
+    public POOBSoccer(long period) throws POOBSoccerException{
         game = new POOBSoccerGame(period);
         try{
             MenuStyle.applyColors();
@@ -85,7 +87,12 @@ public class POOBSoccer extends JFrame implements WindowListener{
             fps = Integer.parseInt(args[0]);
         }
         long period = (long) (MILLIS_PER_SECOND / fps);
-        new POOBSoccer(period * NANOS_PER_MILLI);
+        try{
+            new POOBSoccer(period * NANOS_PER_MILLI);
+        }
+        catch (POOBSoccerException e){
+            JOptionPane.showMessageDialog(null, e.getMessage(), START_ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /** Arma el menú Archivo con sus separadores. */
@@ -97,6 +104,7 @@ public class POOBSoccer extends JFrame implements WindowListener{
         exportItem = new JMenuItem("Exportar como");
         exitItem = new JMenuItem("Salir");
         JMenu file = new JMenu("Archivo");
+        file.getPopupMenu().setLightWeightPopupEnabled(false);
         file.add(newItem);
         file.addSeparator();
         file.add(openItem);
@@ -270,11 +278,12 @@ public class POOBSoccer extends JFrame implements WindowListener{
     }
 
     /**
-     * Muestra la configuración del partido.
-     * @param vsMachine true si el jugador 2 es la máquina
+     * Muestra la configuración del partido con la modalidad escogida.
+     * @param leftMachine true si el jugador 1 empieza como máquina
+     * @param rightMachine true si el jugador 2 empieza como máquina
      */
-    public void showConfiguration(boolean vsMachine){
-        configuration.setMode(vsMachine);
+    public void showConfiguration(boolean leftMachine, boolean rightMachine){
+        configuration.setMode(leftMachine, rightMachine);
         cardLayout.show(container, CONFIG);
     }
 
@@ -293,15 +302,16 @@ public class POOBSoccer extends JFrame implements WindowListener{
      * Inicia un partido y lo muestra.
      * @param leftCountry personaje del jugador 1
      * @param rightCountry personaje del jugador 2
-     * @param profile perfil de la máquina, o null si es jugador contra jugador
+     * @param leftProfile perfil de máquina del jugador 1, o null si lo juega una persona
+     * @param rightProfile perfil de máquina del jugador 2, o null si lo juega una persona
      * @param rules tipo de partido
      * @param limit minutos o goles
      * @param field resolución de la cancha
      * @throws POOBSoccerException si algo de lo escogido no es válido
      */
-    public void playMatch(String leftCountry, String rightCountry, String profile,
+    public void playMatch(String leftCountry, String rightCountry, String leftProfile, String rightProfile,
                           String rules, int limit, String field) throws POOBSoccerException{
-        game.startMatch(leftCountry, rightCountry, profile, rules, limit, field);
+        game.startMatch(leftCountry, rightCountry, leftProfile, rightProfile, rules, limit, field);
         showGame();
     }
 

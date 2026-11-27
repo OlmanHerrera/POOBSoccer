@@ -11,8 +11,10 @@ import java.util.HashMap;
  */
 public class Player implements Serializable{
     private static final long serialVersionUID = 1L;
-    private static final String LEFT_IMAGE = "player1_run";
-    private static final String RIGHT_IMAGE = "player2_run";
+    private static final String MACHINE_IMAGE = "maquina";
+    private static final String RUN_IMAGE = "_run";
+    private static final String FACING_RIGHT = "_r";
+    private static final String FACING_LEFT = "_l";
     private static final double BASE_LIFE = 100;
     private static final double FULL_CHARGE = 1;
     private static final double GOAL_BONUS = 0.25;
@@ -118,7 +120,6 @@ public class Player implements Serializable{
     /** Le pasa a su cuerpo la velocidad y el salto que le dan sus estadísticas y su efecto. */
     private void refreshBody(){
         refreshSpeed();
-        // la altura crece con el cuadrado del impulso; con la raíz sube 10 % por punto
         sprite.setJumpFactor((float) Math.sqrt(jumpMultiplier));
     }
 
@@ -181,12 +182,16 @@ public class Player implements Serializable{
         sprite.setSpeedFactor((float) (speedMultiplier * effectSpeedFactor));
     }
 
-    /** @return nombre de la animación de correr según el lado */
+    /** @return animación de correr de su país o de la máquina, mirando al rival, por ejemplo korea_run_r */
     private String imageName(){
-        if (side == Side.LEFT){
-            return LEFT_IMAGE;
+        String prefix = country.getImage();
+        if (profile != null){
+            prefix = MACHINE_IMAGE;
         }
-        return RIGHT_IMAGE;
+        if (side == Side.LEFT){
+            return prefix + RUN_IMAGE + FACING_RIGHT;
+        }
+        return prefix + RUN_IMAGE + FACING_LEFT;
     }
 
     /**
@@ -259,7 +264,7 @@ public class Player implements Serializable{
      * @return true si está al alcance de su pie
      */
     public boolean canKick(Rectangle target){
-        return sprite.getBootBox().intersects(target);
+        return sprite.getKickBox().intersects(target);
     }
 
     /**
@@ -378,7 +383,7 @@ public class Player implements Serializable{
     }
 
     /**
-     * El aura: un halo del color de su poder alrededor del cuerpo.
+     * El aura: un rectángulo del color de su poder alrededor del cuerpo.
      * @param g donde se dibuja
      */
     private void drawAura(Graphics g){
@@ -389,10 +394,10 @@ public class Player implements Serializable{
         int w = r.width + AURA_MARGIN + AURA_MARGIN;
         int h = r.height + AURA_MARGIN + AURA_MARGIN;
         g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), AURA_ALPHA));
-        g.fillOval(x, y, w, h);
+        g.fillRect(x, y, w, h);
         g.setColor(c);
-        g.drawOval(x, y, w, h);
-        g.drawOval(x + 1, y + 1, w - AURA_LINE, h - AURA_LINE);
+        g.drawRect(x, y, w, h);
+        g.drawRect(x + 1, y + 1, w - AURA_LINE, h - AURA_LINE);
     }
 
     /**

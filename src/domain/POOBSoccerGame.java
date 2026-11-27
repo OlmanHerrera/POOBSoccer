@@ -31,9 +31,16 @@ public class POOBSoccerGame implements MatchObserver{
     /**
      * Crea el juego; el progreso de los jugadores se guarda en poobsoccer_progreso.txt.
      * @param period período del bucle en nanosegundos
+     * @throws POOBSoccerException si el catálogo no existe o tiene una línea mal escrita
      */
-    public POOBSoccerGame(long period){
-        catalog = new Catalog();
+    public POOBSoccerGame(long period) throws POOBSoccerException{
+        try{
+            catalog = new Catalog();
+        }
+        catch (POOBSoccerException e){
+            ErrorLog.record(e);
+            throw e;
+        }
         loader = new ImagesLoader(IMAGES_FILE);
         gameFile = new GameFile();
         progressFile = new File(PROGRESS_FILE);
@@ -93,22 +100,24 @@ public class POOBSoccerGame implements MatchObserver{
      * Inicia un partido con lo escogido en los menús.
      * @param leftCountry personaje del jugador izquierdo
      * @param rightCountry personaje del jugador derecho
-     * @param profileId perfil de la máquina que juega a la derecha, o null si son dos jugadores
+     * @param leftProfile perfil de la máquina que juega a la izquierda, o null si juega una persona
+     * @param rightProfile perfil de la máquina que juega a la derecha, o null si juega una persona
      * @param rulesId tipo de partido
      * @param limit minutos o goles, según el tipo de partido
      * @param fieldId resolución de la cancha
      * @throws POOBSoccerException si algo de lo escogido no existe o el límite no es válido
      */
-    public void startMatch(String leftCountry, String rightCountry, String profileId,
+    public void startMatch(String leftCountry, String rightCountry, String leftProfile, String rightProfile,
                            String rulesId, int limit, String fieldId) throws POOBSoccerException{
         CountryDefinition left = catalog.getCountry(leftCountry);
         CountryDefinition right = catalog.getCountry(rightCountry);
-        PlayerStrategy machine = findMachine(profileId);
+        PlayerStrategy leftMachine = findMachine(leftProfile);
+        PlayerStrategy rightMachine = findMachine(rightProfile);
         MatchRules rules = catalog.getRules(rulesId);
         checkLimit(limit);
         field = catalog.getField(fieldId);
-        leftPlayer.prepare(left, null, field, loader, periodMillis, catalog.getStats());
-        rightPlayer.prepare(right, machine, field, loader, periodMillis, catalog.getStats());
+        leftPlayer.prepare(left, leftMachine, field, loader, periodMillis, catalog.getStats());
+        rightPlayer.prepare(right, rightMachine, field, loader, periodMillis, catalog.getStats());
         match = new Match(field, rules, limit, catalog.getElements(), leftPlayer, rightPlayer,
                           loader, updatesPerSecond);
         addObserversToMatch();

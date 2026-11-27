@@ -16,6 +16,9 @@ public class BallSprite extends Sprite{
     private static final float SPRING_K = 0.15f;
     private static final float KICK_X = 4;
     private static final float KICK_Y = 3.5f;
+    private static final float FOOT_PUSH = 1;
+    private static final float BOOT_BOUNCE = 0.4f;
+    private static final float SQUEEZE_JUMP = 3;
     private static final int RIGHTWARD = 1;
     private static final int LEFTWARD = -1;
     private static final float DECOY_FIRST_SPEED_Y = -5.5f;
@@ -56,7 +59,7 @@ public class BallSprite extends Sprite{
     /** Vuelve quieto y sin poder al centro de la cancha, arriba. */
     public void initPosition(){
         setImage(IMAGE);
-        setPosition(getPWidth() / 2, 0);
+        setPosition(getPWidth() / 2 - getWidth() / 2, 0);
         setVelocity(0, 0);
         discharge();
     }
@@ -178,8 +181,13 @@ public class BallSprite extends Sprite{
         if (isOnFloor()){
             applyFriction();
         }
-        checkPlayer(leftPlayer);
-        checkPlayer(rightPlayer);
+        if (isBetweenBoots()){
+            squeezed();
+        }
+        else{
+            checkPlayer(leftPlayer);
+            checkPlayer(rightPlayer);
+        }
         velocity.add(acceleration);
         velocity.limit(TOP_SPEED);
         acceleration.mult(0);
@@ -210,7 +218,7 @@ public class BallSprite extends Sprite{
     }
 
     /**
-     * Si el balón toca al jugador, sale pateado o rebota en su cabeza como un resorte.
+     * Si el balón toca al jugador, sale pateado, lo empuja el guayo o rebota en su cabeza como un resorte.
      * @param player cuerpo del jugador
      */
     private void checkPlayer(PlayerSprite player){
@@ -218,8 +226,12 @@ public class BallSprite extends Sprite{
         if (!b.intersects(player.getMyRectangle())){
             return;
         }
-        if (player.isKickActive() && b.intersects(player.getBootBox())){
+        if (player.isKickActive() && b.intersects(player.getKickBox())){
             kicked(player);
+            return;
+        }
+        if (b.intersects(player.getBootBox())){
+            pushedByBoot(player);
             return;
         }
         PVector ballCenter = new PVector(b.x + b.width / 2, b.y + b.height / 2);
@@ -232,6 +244,80 @@ public class BallSprite extends Sprite{
             dir.normalize();
             dir.mult(SPRING_K * stretch);
             applyForce(dir);
+        }
+    }
+
+    /**
+     * El guayo empuja el balón hacia adelante; si el jugador no avanza, el balón rebota suave.
+     * @param player cuerpo del jugador
+     */
+    private void pushedByBoot(PlayerSprite player){
+        Rectangle boot = player.getBootBox();
+        float forward = 1;
+        int newX = boot.x + boot.width;
+        if (player.getSide() == Side.RIGHT){
+            forward = -1;
+            newX = boot.x - getWidth();
+        }
+        Rectangle pushed = new Rectangle(newX, (int) location.y, getWidth(), getHeight());
+        boolean outside = newX < 0 || newX + getWidth() > getPWidth();
+        if (outside || pushed.intersects(otherPlayer(player).getBootBox())){
+            squeezed();
+            return;
+        }
+        location.x = newX;
+        float playerSpeed = player.getSpeedX() * forward;
+        float ballSpeed = velocity.x * forward;
+        if (playerSpeed > 0){
+            float extra = FOOT_PUSH;
+            if (player.isKicking()){
+                extra = 0;
+            }
+            ballSpeed = Math.max(ballSpeed, playerSpeed + extra);
+        }
+        else if (ballSpeed < 0){
+            ballSpeed = -ballSpeed * BOOT_BOUNCE;
+        }
+        velocity.x = ballSpeed * forward;
+    }
+
+    /**
+     * @param player uno de los jugadores
+     * @return el otro jugador
+     */
+    private PlayerSprite otherPlayer(PlayerSprite player){
+        if (player == leftPlayer){
+            return rightPlayer;
+        }
+        return leftPlayer;
+    }
+
+    /** @return true si el balón toca los guayos de los dos jugadores a la vez */
+    private boolean isBetweenBoots(){
+        Rectangle b = getMyRectangle();
+        return b.intersects(leftPlayer.getBootBox()) && b.intersects(rightPlayer.getBootBox());
+    }
+
+    /** Balón apretado entre los guayos o contra la pared: si solo uno patea gana su patada; si no, salta. */
+    private void squeezed(){
+        Rectangle b = getMyRectangle();
+        boolean leftKicks = leftPlayer.isKickActive() && b.intersects(leftPlayer.getKickBox());
+        boolean rightKicks = rightPlayer.isKickActive() && b.intersects(rightPlayer.getKickBox());
+        if (leftKicks && !rightKicks){
+            kicked(leftPlayer);
+            return;
+        }
+        if (rightKicks && !leftKicks){
+            kicked(rightPlayer);
+            return;
+        }
+        if (leftKicks){
+            leftPlayer.markKickHit();
+            rightPlayer.markKickHit();
+        }
+        velocity.x = 0;
+        if (velocity.y > -SQUEEZE_JUMP){
+            velocity.y = -SQUEEZE_JUMP;
         }
     }
 

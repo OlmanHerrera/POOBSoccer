@@ -13,18 +13,22 @@ public class ConfigurationPanel extends JPanel{
     private static final int GAP = 10;
     private static final int LIMIT_COLUMNS = 4;
     private static final String TITLE = "Configuración";
-    private static final String PVP_TEXT = "Jugador vs Jugador";
-    private static final String PVM_TEXT = "Jugador vs Máquina";
+    private static final String HUMAN = "Humano";
+    private static final String HUMAN_TEXT = "Jugador";
+    private static final String MACHINE_TEXT = "Máquina";
+    private static final String VERSUS = " vs ";
+    private static final int HUMAN_INDEX = 0;
+    private static final int FIRST_PROFILE_INDEX = 1;
     private static final String ERROR_TITLE = "Configuración";
     private static final String NOT_A_NUMBER = "Los minutos o goles deben ser un número entero: ";
 
     private POOBSoccer frame;
     private POOBSoccerGame game;
-    private boolean vsMachine;
     private JLabel modeLabel;
     private JComboBox<String> leftCountry;
     private JComboBox<String> rightCountry;
-    private JComboBox<String> profile;
+    private JComboBox<String> leftControl;
+    private JComboBox<String> rightControl;
     private JComboBox<String> rules;
     private JLabel limitLabel;
     private JTextField limit;
@@ -52,7 +56,8 @@ public class ConfigurationPanel extends JPanel{
         modeLabel = MenuStyle.createLabel("");
         leftCountry = createCombo(game.getCountryIds());
         rightCountry = createCombo(game.getCountryIds());
-        profile = createCombo(game.getProfileIds());
+        leftControl = createControlCombo();
+        rightControl = createControlCombo();
         rules = createCombo(game.getRuleIds());
         limitLabel = MenuStyle.createLabel("");
         limit = new JTextField(LIMIT_COLUMNS);
@@ -63,16 +68,25 @@ public class ConfigurationPanel extends JPanel{
                 updateLimit();
             }
         });
+        ActionListener modeListener = new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                updateMode();
+            }
+        };
+        leftControl.addActionListener(modeListener);
+        rightControl.addActionListener(modeListener);
         JPanel options = new JPanel(new GridLayout(0, 2, GAP, GAP));
         options.setBackground(MenuStyle.BACKGROUND);
         options.add(MenuStyle.createLabel("Modalidad"));
         options.add(modeLabel);
         options.add(MenuStyle.createLabel("Personaje 1"));
         options.add(leftCountry);
+        options.add(MenuStyle.createLabel("Control 1"));
+        options.add(leftControl);
         options.add(MenuStyle.createLabel("Personaje 2"));
         options.add(rightCountry);
-        options.add(MenuStyle.createLabel("Perfil"));
-        options.add(profile);
+        options.add(MenuStyle.createLabel("Control 2"));
+        options.add(rightControl);
         options.add(MenuStyle.createLabel("Tipo de partido"));
         options.add(rules);
         options.add(limitLabel);
@@ -123,19 +137,64 @@ public class ConfigurationPanel extends JPanel{
         return box;
     }
 
+    /** @return selector de quién maneja a un jugador: Humano o un perfil de máquina */
+    private JComboBox<String> createControlCombo(){
+        ArrayList<String> items = new ArrayList<String>();
+        items.add(HUMAN);
+        items.addAll(game.getProfileIds());
+        return createCombo(items);
+    }
+
     /**
-     * Ajusta la pantalla a la modalidad: el perfil solo se escoge contra la máquina.
-     * @param vsMachine true si el jugador 2 es la máquina
+     * Deja escogida la modalidad del menú principal.
+     * @param leftMachine true si el jugador 1 empieza como máquina
+     * @param rightMachine true si el jugador 2 empieza como máquina
      */
-    public void setMode(boolean vsMachine){
-        this.vsMachine = vsMachine;
-        profile.setEnabled(vsMachine);
-        if (vsMachine){
-            modeLabel.setText(PVM_TEXT);
+    public void setMode(boolean leftMachine, boolean rightMachine){
+        chooseControl(leftControl, leftMachine);
+        chooseControl(rightControl, rightMachine);
+        updateMode();
+    }
+
+    /**
+     * @param control selector de un jugador
+     * @param machine true para el primer perfil de máquina, false para Humano
+     */
+    private void chooseControl(JComboBox<String> control, boolean machine){
+        if (machine && control.getItemCount() > FIRST_PROFILE_INDEX){
+            control.setSelectedIndex(FIRST_PROFILE_INDEX);
         }
         else{
-            modeLabel.setText(PVP_TEXT);
+            control.setSelectedIndex(HUMAN_INDEX);
         }
+    }
+
+    /** Muestra la modalidad según los controles, por ejemplo "Máquina vs Jugador". */
+    private void updateMode(){
+        modeLabel.setText(controlText(leftControl) + VERSUS + controlText(rightControl));
+    }
+
+    /**
+     * @param control selector de un jugador
+     * @return "Jugador" si lo maneja una persona, "Máquina" si lo maneja un perfil
+     */
+    private String controlText(JComboBox<String> control){
+        if (profileOf(control) == null){
+            return HUMAN_TEXT;
+        }
+        return MACHINE_TEXT;
+    }
+
+    /**
+     * @param control selector de un jugador
+     * @return perfil escogido, o null si lo maneja una persona
+     */
+    private String profileOf(JComboBox<String> control){
+        String chosen = (String) control.getSelectedItem();
+        if (HUMAN.equals(chosen)){
+            return null;
+        }
+        return chosen;
     }
 
     /** Cambia la etiqueta y el valor propuesto del límite según el tipo de partido. */
@@ -160,13 +219,10 @@ public class ConfigurationPanel extends JPanel{
             showError(e, NOT_A_NUMBER + limit.getText());
             return;
         }
-        String machine = null;
-        if (vsMachine){
-            machine = (String) profile.getSelectedItem();
-        }
         try{
             frame.playMatch((String) leftCountry.getSelectedItem(), (String) rightCountry.getSelectedItem(),
-                            machine, (String) rules.getSelectedItem(), number, (String) field.getSelectedItem());
+                            profileOf(leftControl), profileOf(rightControl), (String) rules.getSelectedItem(),
+                            number, (String) field.getSelectedItem());
         }
         catch (POOBSoccerException e){
             showError(e, e.getMessage());

@@ -24,6 +24,20 @@ public class POOBSoccerException extends Exception{
     public static final String NOT_A_NUMBER = "el valor debe ser un número entero, no ";
     public static final String BAD_POINTS = "Los puntos no pueden ser negativos: ";
     public static final String BAD_LEVEL = "El nivel debe estar entre 1 y 10: ";
+    public static final String NO_CATALOG = "No se encontró el catálogo: ";
+    public static final String CATALOG_LINE = "Catálogo, línea ";
+    public static final String UNKNOWN_KIND = "tipo desconocido: ";
+    public static final String UNKNOWN_CLASS = "no existe la clase ";
+    public static final String CANNOT_CREATE = "no se pudo crear la clase ";
+    public static final String WRONG_KIND = " no es de tipo ";
+    public static final String MISSING_DATA = "faltan datos.";
+    public static final String NO_CONTROLS = "No se encontró el archivo de controles: ";
+    public static final String CONTROLS_LINE = "Controles, línea ";
+    public static final String UNKNOWN_KEY = "no existe la tecla ";
+    public static final String UNKNOWN_SIDE = "el lado debe ser izquierda o derecha, no ";
+    public static final String UNKNOWN_ACTION = "no existe la acción ";
+    public static final String RESERVED_KEY = "P y ESCAPE están reservadas para pausar y terminar: ";
+    public static final String REPEATED_KEY = "la tecla ya está asignada: ";
 
     /**
      * Crea la excepción con su mensaje.

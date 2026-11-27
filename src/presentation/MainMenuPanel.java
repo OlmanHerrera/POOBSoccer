@@ -27,7 +27,6 @@ public class MainMenuPanel extends JPanel{
         JButton pvpButton = MenuStyle.createButton("Jugador vs Jugador");
         JButton pvmButton = MenuStyle.createButton("Jugador vs Máquina");
         JButton exitButton = MenuStyle.createButton("Salir");
-        //column.add(MenuStyle.createTitle(TITLE, MenuStyle.TITLE_FONT));
         column.add(pvpButton);
         column.add(pvmButton);
         column.add(exitButton);
@@ -35,12 +34,12 @@ public class MainMenuPanel extends JPanel{
 
         pvpButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                frame.showConfiguration(false);
+                frame.showConfiguration(false, false);
             }
         });
         pvmButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                frame.showConfiguration(true);
+                frame.showConfiguration(false, true);
             }
         });
         exitButton.addActionListener(new ActionListener(){

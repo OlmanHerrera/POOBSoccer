@@ -23,6 +23,20 @@ public abstract class TargetProfile implements PlayerStrategy{
     }
 
     /**
+     * Patea si alcanza el balón; si no, se acerca a la x objetivo.
+     * @param p jugador que decide
+     * @param m partido actual
+     * @param targetX x a la que quiere llegar
+     * @return patear, o la acción para acercarse
+     */
+    protected Action kickOrMoveTo(Player p, Match m, float targetX){
+        if (p.canKick(m.getBallBounds())){
+            return Action.KICK;
+        }
+        return moveTo(p, targetX);
+    }
+
+    /**
      * Acción para acercarse a una x objetivo.
      * @param p jugador que se mueve
      * @param targetX x a la que quiere llegar

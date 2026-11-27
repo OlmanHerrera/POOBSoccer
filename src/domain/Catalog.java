@@ -1,4 +1,9 @@
 package src.domain;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -6,6 +11,18 @@ import java.util.LinkedHashMap;
  * Registro de personajes, perfiles, tipos de partido, canchas, estadísticas y elementos de la cancha.
  */
 public class Catalog{
+    private static final String FILE = "/catalogo.txt";
+    private static final String CLASS_PREFIX = "src.domain.";
+    private static final String SEPARATOR = ";";
+    private static final String COMMENT = "#";
+    private static final String SIZE_SEPARATOR = "x";
+    private static final String COUNTRY = "pais";
+    private static final String PROFILE = "perfil";
+    private static final String RULES = "reglas";
+    private static final String FIELD = "cancha";
+    private static final String STAT = "estadistica";
+    private static final String ELEMENT = "elemento";
+
     private LinkedHashMap<String, CountryDefinition> countries;
     private LinkedHashMap<String, PlayerStrategy> profiles;
     private LinkedHashMap<String, MatchRules> rules;
@@ -14,46 +31,130 @@ public class Catalog{
     private ArrayList<FieldElement> elements;
 
     /**
-     * Crea el catálogo con todo lo registrado.
+     * Crea el catálogo con lo que dice catalogo.txt.
+     * @throws POOBSoccerException si el archivo no existe o alguna línea está mal escrita
      */
-    public Catalog(){
+    public Catalog() throws POOBSoccerException{
         countries = new LinkedHashMap<String, CountryDefinition>();
         profiles = new LinkedHashMap<String, PlayerStrategy>();
         rules = new LinkedHashMap<String, MatchRules>();
         fields = new LinkedHashMap<String, Field>();
         stats = new ArrayList<Stat>();
         elements = new ArrayList<FieldElement>();
-        registerAll();
+        load();
     }
 
     /**
-     * Único lugar con las líneas de registro.
+     * Lee catalogo.txt línea por línea; se saltan las vacías y las que empiezan con #.
+     * @throws POOBSoccerException si el archivo no existe, no se puede leer o tiene una línea mal escrita
      */
-    private void registerAll(){
-        addCountry(new CountryDefinition("Corea del Sur", new BlueAuraShot()));
-        addCountry(new CountryDefinition("Camerún", new LightningShot()));
-        addCountry(new CountryDefinition("Nigeria", new TornadoShot()));
-        addCountry(new CountryDefinition("Estados Unidos", new DeceptiveShot()));
+    private void load() throws POOBSoccerException{
+        InputStream in = Catalog.class.getResourceAsStream(FILE);
+        if (in == null){
+            throw new POOBSoccerException(POOBSoccerException.NO_CATALOG + FILE);
+        }
+        try{
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String line = reader.readLine();
+            int number = 1;
+            while (line != null){
+                String text = line.trim();
+                if (!text.isEmpty() && !text.startsWith(COMMENT)){
+                    register(text.split(SEPARATOR), number);
+                }
+                line = reader.readLine();
+                number++;
+            }
+            reader.close();
+        }
+        catch (IOException e){
+            throw new POOBSoccerException(POOBSoccerException.CANNOT_READ + FILE, e);
+        }
+    }
 
-        addProfile(new ClumsyProfile());
-        addProfile(new OffensiveProfile());
-        addProfile(new DefensiveProfile());
-        addProfile(new ExpertProfile());
+    /**
+     * Registra una línea del catálogo.
+     * @param parts partes de la línea, separadas por ;
+     * @param number número de la línea, para el mensaje de error
+     * @throws POOBSoccerException si el tipo no existe o faltan datos
+     */
+    private void register(String[] parts, int number) throws POOBSoccerException{
+        String kind = parts[0].trim();
+        if (kind.equals(COUNTRY)){
+            checkParts(parts, 4, number);
+            AbilityStrategy power = (AbilityStrategy) create(parts[2], AbilityStrategy.class, number);
+            addCountry(new CountryDefinition(parts[1].trim(), power, parts[3].trim()));
+        }
+        else if (kind.equals(PROFILE)){
+            checkParts(parts, 2, number);
+            addProfile((PlayerStrategy) create(parts[1], PlayerStrategy.class, number));
+        }
+        else if (kind.equals(RULES)){
+            checkParts(parts, 2, number);
+            addRules((MatchRules) create(parts[1], MatchRules.class, number));
+        }
+        else if (kind.equals(STAT)){
+            checkParts(parts, 2, number);
+            addStat((Stat) create(parts[1], Stat.class, number));
+        }
+        else if (kind.equals(ELEMENT)){
+            checkParts(parts, 2, number);
+            addElement((FieldElement) create(parts[1], FieldElement.class, number));
+        }
+        else if (kind.equals(FIELD)){
+            checkParts(parts, 3, number);
+            int width = toInt(parts[1], number);
+            int height = toInt(parts[2], number);
+            addField(new Field(width + SIZE_SEPARATOR + height, width, height));
+        }
+        else{
+            throw lineError(number, POOBSoccerException.UNKNOWN_KIND + kind);
+        }
+    }
 
-        addField(new Field("500x400", 500, 400));
-        addField(new Field("625x500", 625, 500));
-        addField(new Field("750x600", 750, 600));
+    /**
+     * Crea con reflexión un objeto de src.domain a partir del nombre de su clase.
+     * @param className nombre de la clase, por ejemplo BlueAuraShot
+     * @param kind tipo que debe tener el objeto, por ejemplo AbilityStrategy
+     * @param number número de la línea, para el mensaje de error
+     * @return el objeto creado con el constructor sin parámetros de la clase
+     * @throws POOBSoccerException si la clase no existe, no se puede crear o no es del tipo pedido
+     */
+    private Object create(String className, Class<?> kind, int number) throws POOBSoccerException{
+        String name = className.trim();
+        Object created;
+        try{
+            created = Class.forName(CLASS_PREFIX + name).getDeclaredConstructor().newInstance();
+        }
+        catch (ClassNotFoundException e){
+            throw lineError(number, POOBSoccerException.UNKNOWN_CLASS + name);
+        }
+        catch (ReflectiveOperationException e){
+            throw lineError(number, POOBSoccerException.CANNOT_CREATE + name);
+        }
+        if (!kind.isInstance(created)){
+            throw lineError(number, name + POOBSoccerException.WRONG_KIND + kind.getSimpleName());
+        }
+        return created;
+    }
 
-        addElement(new Crossbar()); // va antes que el arco
-        addElement(new Goal());
+    private void checkParts(String[] parts, int needed, int number) throws POOBSoccerException{
+        if (parts.length < needed){
+            throw lineError(number, POOBSoccerException.MISSING_DATA);
+        }
+    }
 
-        addRules(new TimedRules());
-        addRules(new GoalsRules());
+    private int toInt(String text, int number) throws POOBSoccerException{
+        try{
+            return Integer.parseInt(text.trim());
+        }
+        catch (NumberFormatException e){
+            throw lineError(number, POOBSoccerException.NOT_A_NUMBER + text.trim());
+        }
+    }
 
-        addStat(new SpeedStat());
-        addStat(new KickStat());
-        addStat(new JumpStat());
-        addStat(new SurvivalStat());
+    private POOBSoccerException lineError(int number, String detail){
+        return new POOBSoccerException(POOBSoccerException.CATALOG_LINE + number + ": " + detail);
     }
 
     private void addCountry(CountryDefinition c){
@@ -95,15 +196,20 @@ public class Catalog{
 
     /**
      * @param id nombre del perfil
-     * @return perfil de máquina registrado con ese nombre
-     * @throws POOBSoccerException si no existe
+     * @return un perfil nuevo de la clase registrada con ese nombre
+     * @throws POOBSoccerException si no existe o no se puede crear
      */
     public PlayerStrategy getProfile(String id) throws POOBSoccerException{
         PlayerStrategy p = profiles.get(id);
         if (p == null){
             throw new POOBSoccerException(POOBSoccerException.UNKNOWN_PROFILE + id);
         }
-        return p;
+        try{
+            return p.getClass().getDeclaredConstructor().newInstance();
+        }
+        catch (ReflectiveOperationException e){
+            throw new POOBSoccerException(POOBSoccerException.CANNOT_CREATE + p.getClass().getSimpleName(), e);
+        }
     }
 
     /**

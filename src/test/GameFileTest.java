@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.File;
+import java.io.PrintWriter;
 import src.domain.*;
 
 /**
@@ -95,5 +96,36 @@ public class GameFileTest{
         gameFile.importProgress(progressFile, newLeft, newRight, catalog);
         assertEquals(100, newLeft.getPoints());
         assertEquals(3, newLeft.getLevel("Survival"));
+    }
+
+    /** Abrir un partido que no existe lanza la excepción del juego. */
+    @Test
+    public void shouldFailToOpenAMissingMatch(){
+        File missing = new File(FOLDER, "poobsoccer_no_existe.dat");
+        try{
+            gameFile.openMatch(missing);
+            fail("Debía lanzar POOBSoccerException");
+        }
+        catch (POOBSoccerException e){
+            assertTrue(e.getMessage().startsWith(POOBSoccerException.FILE_NOT_FOUND));
+        }
+    }
+
+    /** Un progreso con un nivel imposible dice su línea y no cambia a los jugadores. */
+    @Test
+    public void shouldReportTheLineOfABadProgress() throws Exception{
+        PrintWriter out = new PrintWriter(progressFile);
+        out.println("Jugador1, Puntos, 100");
+        out.println("Jugador1, Kick, 11");
+        out.close();
+        try{
+            gameFile.importProgress(progressFile, left, right, catalog);
+            fail("Debía lanzar POOBSoccerException");
+        }
+        catch (POOBSoccerException e){
+            assertEquals(POOBSoccerException.BAD_LINE + 2 + ": " + POOBSoccerException.BAD_LEVEL + 11, e.getMessage());
+            assertEquals(0, left.getPoints());
+            assertEquals(1, left.getLevel("Kick"));
+        }
     }
 }

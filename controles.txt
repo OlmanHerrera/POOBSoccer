@@ -1,0 +1,15 @@
+
+
+A ; izquierda ; MOVE_LEFT
+D ; izquierda ; MOVE_RIGHT
+S ; izquierda ; STAY_STILL
+W ; izquierda ; JUMP
+Z ; izquierda ; KICK
+X ; izquierda ; POWER
+
+LEFT  ; derecha ; MOVE_LEFT
+RIGHT ; derecha ; MOVE_RIGHT
+DOWN  ; derecha ; STAY_STILL
+UP    ; derecha ; JUMP
+SPACE ; derecha ; KICK
+ENTER ; derecha ; POWER
